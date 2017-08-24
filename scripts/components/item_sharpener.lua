@@ -31,7 +31,7 @@ local ItemSharpener = Class(function(self, inst)
     --"readytosharpen" means it's CLOSED and FULL
     --This tag is used for gathering scene actions only
     --The widget cook button doesn't check this tag,
-    --and obviously has to work when the pot is open
+    --and obviously has to work when the sharpener is open
 
     inst:ListenForEvent("itemget", oncheckready)
     inst:ListenForEvent("onclose", oncheckready)
@@ -74,7 +74,8 @@ function ItemSharpener:GetTimeToSharpen()
     return not self.done and self.targettime ~= nil and self.targettime - GetTime() or 0
 end
 
-function ItemSharpener:CanSharpen()
+-- unused?
+function ItemSharpener:CanStartSharpening()
     return self.inst.components.container ~= nil and self.inst.components.container:IsFull()
 end
 
@@ -86,16 +87,20 @@ function ItemSharpener:StartSharpening()
             self.onstartsharpening(self.inst)
         end
 
-		local raw_materials = {}
-		for k, v in pairs(self.inst.components.container.slots) do
-			table.insert(raw_materials, v.prefab)
+        self.product = self.inst.components.container:RemoveItemBySlot(1)
+        self.product.prevcontainer = nil
+        self.product.prevslot = nil
+
+        local raw_materials = {}
+		for _,item in pairs(self.inst.components.container.slots) do
+			table.insert(raw_materials, item.prefab)
 		end
-
-        self.product = table.remove(raw_materials,1)
-
         local total_repair = sharpening.CalculateRepair(self.inst.prefab, raw_materials)
 
-        sharpentime = TUNING.BASE_COOK_TIME -- possibly move to TUNING.BASE_SHARPEN_TIME
+        -- possibly move to TUNING.BASE_SHARPEN_TIME
+        -- for now using BASE_COOK_TIME is good enough for sharpen time
+        sharpentime = TUNING.BASE_COOK_TIME 
+
         self.targettime = GetTime() + sharpentime
 
         if self.task ~= nil then
@@ -118,13 +123,16 @@ function ItemSharpener:StopSharpening(reason)
         self.task:Cancel()
         self.task = nil
     end
+
+    -- if we are done sharpening due to burning up, drop the item
     if self.product ~= nil and reason == "fire" then
-        local prod = SpawnPrefab(self.product)
-        if prod ~= nil then
-            prod.Transform:SetPosition(self.inst.Transform:GetWorldPosition())
-            prod:DoTaskInTime(0, StopProductPhysics)
+        self.product.Transform:SetPosition(self.inst.Transform:GetWorldPosition())
+        self.product:DoTaskInTime(0, StopProductPhysics)
+        if self.product.components.inventoryitem ~= nil then
+            self.product.components.inventoryitem:OnDropped(true)
         end
     end
+
     self.product = nil
     self.targettime = nil
     self.done = nil
@@ -169,6 +177,68 @@ function ItemSharpener:OnLoad(data)
 
         if self.inst.components.container ~= nil then
             self.inst.components.container.canbeopened = false
+        end
+    end
+end
+
+function ItemSharpener:GetDebugString()
+    local status = (self:IsCooking() and "SHARPENING")
+                or (self:IsDone() and "FULL")
+                or "EMPTY"
+
+    local prefab_name = (self.product and self.product.prefab) or "<none>"
+
+    return string.format("%s %s timetosharpen: %.2f",
+            prefab_name,
+            status,
+            self:GetTimeToSharpen())
+end
+
+function ItemSharpener:Harvest(harvester)
+    if self.done then
+        if self.onharvest ~= nil then
+            self.onharvest(self.inst)
+        end
+
+        if self.product ~= nil then
+            local loot = self.product
+            if loot ~= nil then
+                if harvester ~= nil and harvester.components.inventory ~= nil then
+                    harvester.components.inventory:GiveItem(loot, nil, self.inst:GetPosition())
+                else
+                    LaunchAt(loot, self.inst, nil, 1, 1)
+                end
+            end
+            self.product = nil
+        end
+
+        if self.task ~= nil then
+            self.task:Cancel()
+            self.task = nil
+        end
+        self.targettime = nil
+        self.done = nil
+
+        if self.inst.components.container ~= nil then      
+            self.inst.components.container.canbeopened = true
+        end
+
+        return true
+    end
+end
+
+function ItemSharpener:LongUpdate(dt)
+    if self:IsSharpening() then
+        if self.task ~= nil then
+            self.task:Cancel()
+        end
+        if self.targettime - dt > GetTime() then
+            self.targettime = self.targettime - dt
+            self.task = self.inst:DoTaskInTime(self.targettime - GetTime(), dosharpen, self)
+            dt = 0            
+        else
+            dt = dt - self.targettime + GetTime()
+            dosharpen(self.inst, self)
         end
     end
 end
