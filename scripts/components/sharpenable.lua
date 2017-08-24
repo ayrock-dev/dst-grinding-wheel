@@ -1,6 +1,5 @@
 local Sharpenable = Class(function(self, inst)
     self.inst = inst
-    self.product = nil
     self.onsharpened = nil
 
     --V2C: Recommended to explicitly add tag to prefab pristine state
@@ -15,19 +14,18 @@ function Sharpenable:SetOnSharpenedFn(fn)
     self.onsharpened = fn
 end
 
-function Sharpenable:Sharpen(item_sharpener, doer)
+function Sharpenable:Sharpen(item_sharpener, repair)
     if self.onsharpened ~= nil then
-        self.onsharpened(self.inst, item_sharpener, doer)
+        self.onsharpened(self.inst, item_sharpener, repair)
     end
-    if self.product ~= nil then
-        local prod = SpawnPrefab(
-            type(self.product) ~= "function" and
-            self.product or
-            self.product(self.inst, item_sharpener, doer)
-        )
-        if prod ~= nil then
-            return prod
-        end
+    if self.inst.components.finiteuses ~= nil then
+        -- current is the current number of uses
+        local current = self.inst.components.finiteuses:GetUses()
+        local percent = self.inst.components.finiteuses:GetPercent()
+        -- total is the maximum number of uses
+        local total = (1 / percent) * current
+        local new = current + repair
+        self.inst.components.finiteuses:SetUses(math.max(total, new))
     end
 end
 
