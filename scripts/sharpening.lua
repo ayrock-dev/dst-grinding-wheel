@@ -11,10 +11,17 @@ end
 --------------------------------
 
 AddMaterialValues({"rocks"}, 15)
-AddMaterialValues({"flint"}, 25)
+AddMaterialValues({"nitre"}, 25)
+AddMaterialValues({"goldnugget"}, 25)
 AddMaterialValues({"cutstone"}, 75)
+AddMaterialValues({"flint"}, 75)
+AddMaterialValues({"redgem"}, 100)
+AddMaterialValues({"bluegem"}, 100)
+AddMaterialValues({"marble"}, 100)
 
--- end SHARPENING MATERIALS TABLE
+--------------------------------- --
+-- end SHARPENING MATERIALS TABLE --
+------------------------------------
 
 local function IsSharpeningMaterial(prefabname)
     return sharpening_materials[prefabname] ~= nil
