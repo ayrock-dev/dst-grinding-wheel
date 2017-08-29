@@ -31,7 +31,7 @@ local grinding_wheel = Recipe(
 grinding_wheel.atlas = "images/inventoryimages/grinding_wheel.xml"
 AddMinimapAtlas("images/inventoryimages/grinding_wheel.xml")
 
--- ADD ITEMS WHICH WE WANT TO BE SHARPENABLE
+-- ADD SHARPENABLE COMPONENT TO THOSE WHICH WE WANT TO BE SHARPENABLE
 
 local function AddSharpenableComponent(prefab)
     if not prefab.components.insulator then
@@ -59,3 +59,5 @@ local sharpenable_items = {
 for _,item in sharpenable_items do
     AddPrefabPostInit(item, AddSharpenableComponent);
 end
+
+-- 

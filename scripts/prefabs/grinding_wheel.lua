@@ -1,5 +1,7 @@
 require "prefabutil"
 
+local sharpening = require("sharpening")
+
 local assets = 
 {
     Asset("ANIM", "anim/grinding_wheel.zip"),
@@ -139,6 +141,61 @@ local function onload(inst, data)
     end
 end
 
+local function widget_itemtestfn(container, item, slot)
+    -- item in slot 1 is that which is being sharpened, items in other slots are sharpening materials
+    if slot == 1 then
+        return item.components.sharpenable and not container.inst:HasTag("burnt")
+    else
+        return sharpening.IsSharpeningMaterial(item.prefab) and not container.inst:HasTag("burnt")
+    end
+end
+
+local function widget_buttoninfo_fn(inst)
+    if inst.components.container ~= nil then
+        BufferedAction(inst.components.container.opener, inst, ACTIONS.SHARPEN):Do()
+    elseif inst.replica.container ~= nil and not inst.replica.container:IsBusy() then
+        SendRPCToServer(RPC.DoWidgetButtonAction, ACTIONS.SHARPEN.code, inst, ACTIONS.SHARPEN.mod_name)
+    end
+end
+
+local function widget_buttoninfovalid_fn(inst)
+    return inst.replica.container ~= nil and inst.components.item_sharpener:CanSharpen()
+end
+
+local function getGrindingWheelWidgetData()
+    local grinding_wheel_widget_data = 
+    {
+        widget = 
+        {
+            slotpos =
+            {
+                Vector3(0, 64 + 32 + 8 + 4, 0), 
+                Vector3(0, 32 + 4, 0),
+                Vector3(0, -(32 + 4), 0), 
+                Vector3(0, -(64 + 32 + 8 + 4), 0),
+            },
+            animbank = "ui_cookpot_1x4",
+            animbuild = "ui_cookpot_1x4",
+            pos = Vector3(200, 0, 0),
+            side_align_tip = 100,
+            buttoninfo =
+            {
+                text = 'Sharpen!',
+                position = Vector3(0, -165, 0),
+            }
+        },
+        acceptsstacks = false,
+        issidewidget = false,
+        type = "cooker"
+    }
+
+    grinding_wheel_widget_data.itemtestfn = widget_itemtestfn
+    grinding_wheel_widget_data.widget.buttoninfo.fn = widget_buttoninfo_fn
+    grinding_wheel_widget_data.widget.buttoninfo.validfn = widget_buttoninfo_validfn
+
+    return 
+end
+
 local function fn()
 	local inst = CreateEntity()
 
@@ -175,8 +232,9 @@ local function fn()
     inst.components.item_sharpener.ondonesharpening = donesharpenfn
     inst.components.item_sharpener.onharvest = harvestfn
 
+    local grinding_wheel_widget_data = getGrindingWheelWidgetData()
     inst:AddComponent("container")
-    inst.components.container:WidgetSetup("grinding_wheel")
+    inst.components.container:WidgetSetup("grinding_wheel", grinding_wheel_widget_data)
     inst.components.container.onopenfn = onopen
     inst.components.container.onclosefn = onclose
 

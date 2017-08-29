@@ -74,7 +74,7 @@ function ItemSharpener:GetTimeToSharpen()
     return not self.done and self.targettime ~= nil and self.targettime - GetTime() or 0
 end
 
--- unused?
+-- used to enable/disable widget button
 function ItemSharpener:CanStartSharpening()
     return self.inst.components.container ~= nil and self.inst.components.container:IsFull()
 end
