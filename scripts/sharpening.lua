@@ -1,6 +1,6 @@
 local sharpening_materials = {}
 
-function AddMaterialValues(names, repair_value)
+function AddSharpeningMaterial(names, repair_value)
 	for _,name in pairs(names) do
 		sharpening_materials[name] = repair_value
 	end
@@ -10,9 +10,9 @@ end
 -- SHARPENING MATERIALS TABLE --
 --------------------------------
 
-AddMaterialValues({"rocks"}, 15)
-AddMaterialValues({"flint"}, 25)
-AddMaterialValues({"cutstone"}, 75)
+AddSharpeningMaterial({"rocks"}, 15)
+AddSharpeningMaterial({"flint"}, 25)
+AddSharpeningMaterial({"cutstone"}, 75)
 
 -- end SHARPENING MATERIALS TABLE
 
@@ -31,6 +31,7 @@ local function CalculateRepair(item_sharpener, prefablist)
             total = total + GetRepairValueByPrefab(name)
         end
     end
+    return total
 end
 
 return 

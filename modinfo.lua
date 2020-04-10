@@ -1,5 +1,5 @@
 name 						= "Sharpenable Items"
-description 				= "Sharpen weapons and tools on the grinding wheel to restore durability."
+description 				= "Sharpen flint weapons and tools to restore durability."
 author 						= "Ayrock"
 version 					= "0.0.1"
 
@@ -13,7 +13,7 @@ dst_compatible              = true
 all_clients_require_mod     = true
 client_only_mod             = false
 
---icon_atlas 					= "modicon.xml"
---icon 						= "modicon.tex"
+icon_atlas 					= "modicon.xml"
+icon 						= "modicon.tex"
 
 configuration_options = {}
