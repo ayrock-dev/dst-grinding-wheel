@@ -6,7 +6,11 @@ local assets =
 }
 
 local function onsharpen(inst, target, doer) 
+<<<<<<< HEAD
     doer:PushEvent("repair")
+=======
+    --doer:PushEvent("repair")
+>>>>>>> 364de3f92e52fe70d56e25a51fbbbfe3c89ff9e0
 end
 
 local function fn()
