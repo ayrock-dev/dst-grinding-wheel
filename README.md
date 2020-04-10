@@ -1,2 +1,2 @@
-# dst-grinding-wheel
-Grinding wheel mod for Don't Starve Together
+# dst-sharpenable-items
+Sharpenable items mod for Don't Starve Together

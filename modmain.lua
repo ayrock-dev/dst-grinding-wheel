@@ -43,15 +43,11 @@ local SHARPEN = AddAction(
             return act.invobject.components.sharpener:Sharpen(act.target, act.doer)
         end
 
-<<<<<<< HEAD
         return false
     end
 )
 SHARPEN.rmb = true
 SHARPEN.mount_valid = true
-=======
--- ADD SHARPENABLE COMPONENT TO THOSE WHICH WE WANT TO BE SHARPENABLE
->>>>>>> 45a59e1e54aed07498654b48fd9b30e4f394e757
 
 AddComponentAction(
     "USEITEM",   -- actiontype
@@ -87,14 +83,6 @@ local sharpenables = {
     "multitool_axe_pickaxe",
 }
 
-<<<<<<< HEAD
 for _,prefab in ipairs(sharpenables) do
     AddPrefabPostInit(prefab, AddSharpenable);
 end
-=======
-for _,item in sharpenable_items do
-    AddPrefabPostInit(item, AddSharpenableComponent);
-end
-
--- 
->>>>>>> 45a59e1e54aed07498654b48fd9b30e4f394e757

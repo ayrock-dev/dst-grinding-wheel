@@ -1,5 +1,5 @@
 name 						= "Sharpenable Items"
-description 				= "Sharpen flint weapons and tools to restore durability."
+description 				= "Sharpen weapons and tools to restore durability."
 author 						= "Ayrock"
 version 					= "0.0.1"
 
