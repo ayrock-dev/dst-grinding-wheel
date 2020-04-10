@@ -6,7 +6,7 @@ local assets =
 }
 
 local function onsharpen(inst, target, doer) 
-    --doer:PushEvent("repair")
+    doer:PushEvent("repair")
 end
 
 local function fn()
